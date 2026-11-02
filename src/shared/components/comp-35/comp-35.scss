@@ -1,0 +1,2 @@
+@use '../../styles/vars' as *;
+.comp-35 { @include card; color: $primary; &__title { margin: $gap * 2; } }

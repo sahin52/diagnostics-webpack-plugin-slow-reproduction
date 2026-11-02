@@ -1,0 +1,3 @@
+$primary: #336699;
+$gap: 8px;
+@mixin card { padding: $gap; border: 1px solid $primary; }

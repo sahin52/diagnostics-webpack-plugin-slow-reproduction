@@ -1,0 +1,1 @@
+module.exports = (...configs) => require('webpack-merge').merge(...configs);
