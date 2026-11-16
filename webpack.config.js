@@ -1,8 +1,6 @@
 // Same shape as the real config; env.variant picks the checking plugins.
 //   --env variant=diagnostics-threadsnotset      (current: DiagnosticsPlugin, threads "auto")
 //   --env variant=legacy           (ESLintPlugin + StyleLintPlugin + ForkTsChecker)
-//   --env checksDisabled
-//   --env siteName=site-0          (build one site only)
 const path = require('path');
 const fs = require('node:fs');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
@@ -11,7 +9,7 @@ const ESLintPlugin = require('eslint-webpack-plugin');
 const StyleLintPlugin = require('stylelint-webpack-plugin');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const webpackMerge = require('./webpack-merge.js');
-const MemoryUsageWebpackPlugin = require('./memory-usage-webpack-plugin');
+const MemoryCpuUsageWebpackPlugin = require('./memory-cpu-usage-webpack-plugin.js');
 
 console.info(`Node.js heap limit = ${require('v8').getHeapStatistics().heap_size_limit / (1024 * 1024)} MiB`);
 
@@ -33,7 +31,7 @@ const checks = {
 };
 
 const config = env => ({
-  mode: 'development',
+  mode: 'production',
   devtool: false,
   output: {
     path: path.resolve(__dirname, 'bundles'),
@@ -45,7 +43,7 @@ const config = env => ({
   resolve: { extensions: ['.tsx', '.ts', '.js'] },
   module: {
     rules: [
-      { test: /\.tsx?$/, loader: 'ts-loader', options: env.checksDisabled ? { transpileOnly: true } : {} },
+      { test: /\.tsx?$/, loader: 'ts-loader', options: { transpileOnly: true } },
       {
         test: /\.s?css$/,
         use: [
@@ -67,9 +65,9 @@ const config = env => ({
     }
   },
   plugins: [
-    new MemoryUsageWebpackPlugin(),
+    new MemoryCpuUsageWebpackPlugin(),
     new MiniCssExtractPlugin({ filename: '[name].bundle.css' }),
-    ...(env.checksDisabled ? [] : checks[env.variant || 'diagnostics-threadsnotset']())
+    ...(checks[env.variant || 'diagnostics-threadsnotset']())
   ],
   target: ['web', 'es2022']
 });
